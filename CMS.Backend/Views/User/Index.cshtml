@@ -1,45 +1,62 @@
 ﻿@model IEnumerable<CMS.Data.Entities.User>
 
+@{
+    ViewData["Title"] = "Quản lý thành viên";
+}
+
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-dark">QUẢN LÝ THÀNH VIÊN</h2>
-        <button class="btn btn-success btn-sm">+ Thêm thành viên mới</button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-uppercase" style="letter-spacing: 0.5px;">Quản lý thành viên</h2>
+        <a href="#" class="btn btn-success fw-semibold px-3 py-2">
+            <i class="bi bi-plus-lg"></i> + Thêm thành viên mới
+        </a>
     </div>
 
-    <table class="table table-hover shadow-sm border">
-        <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Tên Đăng Nhập</th>
-                <th>Họ Và Tên</th>
-                <th>Quyền Hạn</th>
-                <th>Thao Tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.Id</td>
-                    <td><strong>@user.Username</strong></td>
-                    <td>@user.FullName</td>
-                    <td>
-                        @if (user.Role == "Administrator")
-                        {
-                            <span class="badge bg-danger">@user.Role</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-info text-dark">@user.Role</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-warning">Sửa</button>
-                        <button class="btn btn-sm btn-outline-danger">Xóa</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-dark fw-bold border-bottom">
+                    <tr>
+                        <th style="width: 8%;">ID</th>
+                        <th style="width: 25%;">Tên Đăng Nhập</th>
+                        <th style="width: 30%;">Họ Và Tên</th>
+                        <th style="width: 17%;">Quyền Hạn</th>
+                        <th style="width: 20%;" class="text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="fw-medium text-secondary">@user.Id</td>
+                            <td class="fw-bold text-dark">@user.Username</td>
+                            <td>@user.FullName</td>
+                            <td>
+                                @if (user.Role?.ToLower() == "admin" || user.Role?.ToLower() == "administrator")
+                                {
+                                    <span class="badge bg-danger px-3 py-2 text-uppercase" style="font-size: 0.75rem;">Administrator</span>
+                                }
+                                else if (user.Role?.ToLower() == "editor")
+                                {
+                                    <span class="badge bg-info text-dark px-3 py-2 text-uppercase" style="font-size: 0.75rem;">Editor</span>
+                                }
+                                else if (user.Role?.ToLower() == "moderator")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 text-uppercase" style="font-size: 0.75rem;">Moderator</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary px-3 py-2 text-uppercase" style="font-size: 0.75rem;">@user.Role</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a href="#" class="btn btn-sm btn-outline-warning text-dark border-warning fw-semibold me-1 px-2.5">Sửa</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger fw-semibold px-2.5" onclick="return confirm('Bạn có chắc chắn muốn xóa thành viên này?')">Xóa</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
