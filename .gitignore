@@ -1,0 +1,26 @@
+# === Visual Studio ===
+.vs/
+*.user
+*.suo
+*.sln.docstates
+*.userprefs
+
+# === .NET ===
+bin/
+obj/
+*.cache
+*.log
+*.trx
+*.coverage
+
+# === Frontend ===
+node_modules/
+build/
+dist/
+
+# === Vendor / Restored Libraries ===
+wwwroot/lib/
+
+# === JetBrains Rider ===
+.idea/
+_ReSharper*/

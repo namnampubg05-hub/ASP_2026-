@@ -1,0 +1,44 @@
+﻿@model IEnumerable<CMS.Data.Entities.OrderDetail>
+@{
+    Layout = "_LayoutAdmin";
+}
+@{
+    ViewData["Title"] = "Chi tiết Đơn hàng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-uppercase" style="letter-spacing: 0.5px;">Chi tiết Đơn hàng</h2>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-dark fw-bold border-bottom">
+                    <tr>
+                        <th style="width: 10%;">Mã Đơn Hàng</th>
+                        <th style="width: 30%;">Tên Sản Phẩm</th>
+                        <th style="width: 15%;" class="text-center">Số Lượng</th>
+                        <th style="width: 20%;">Đơn Giá</th>
+                        <th style="width: 25%;">Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        // Tính toán thành tiền của từng dòng sản phẩm
+                        var thanhTien = item.Quantity * item.UnitPrice;
+
+                        <tr>
+                            <td class="fw-bold text-secondary">#@item.OrderId</td>
+                            <td class="fw-bold text-dark">@item.Product?.Name</td>
+                            <td class="text-center fw-semibold">@item.Quantity</td>
+                            <td class="text-muted">@item.UnitPrice.ToString("#,##0") đ</td>
+                            <td class="fw-bold text-danger">@thanhTien.ToString("#,##0") đ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<CMS.Data.Entities.Category>
+
+@{
+    ViewData["Title"] = "Danh mục";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-4">
+
+    <h3 class="mb-3">📁 DANH SÁCH DANH MỤC</h3>
+
+    <!-- Button thêm -->
+    <a class="btn btn-primary mb-3" asp-action="Create">
+        + Thêm danh mục
+    </a>
+
+    <!-- Hiển thị lỗi nếu xóa không được -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th style="width: 180px;">Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <a class="btn btn-warning btn-sm"
+                           asp-action="Edit"
+                           asp-route-id="@item.Id">
+                            Sửa
+                        </a>
+
+                        <a class="btn btn-danger btn-sm"
+                           asp-action="Delete"
+                           asp-route-id="@item.Id"
+                           onclick="return confirm('Bạn có chắc muốn xóa?')">
+                            Xóa
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
