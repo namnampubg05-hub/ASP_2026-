@@ -105,3 +105,19 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@ckeditor/ckeditor5-build-classic@39.0.1/build/ckeditor.js"></script>
+
+    <style>
+        .ck-editor__editable_inline {
+            min-height: 250px !important;
+        }
+    </style>
+
+    <script>
+        ClassicEditor
+        .create(document.querySelector('#Description'))
+        .catch(error => console.error(error));
+    </script>
+}

@@ -42,7 +42,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">
+                                <span class="nav-link text-white">
                                     Chào, <strong>@User.FindFirst("FullName")?.Value</strong> (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
                                 </span>
                             </li>
@@ -77,6 +77,9 @@
                     </a>
                     <a asp-controller="Order" asp-action="Index">
                         <i class="bi bi-grid"></i> Đơn hàng
+                    </a>
+                    <a asp-controller="Advertisement" asp-action="Index">
+                        <i class="bi bi-megaphone"></i> Quảng cáo
                     </a>
 
                 </div>

@@ -1,35 +1,27 @@
 import React, { useState, useEffect, useCallback } from "react";
-
-const slides = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=1200&h=600&fit=crop",
-    badge: "🔥 Giảm đến 50% hôm nay",
-    title: "Thế Giới",
-    accent: "Nước Giải Khát",
-    desc: "Hơn 500+ sản phẩm chính hãng từ các thương hiệu nổi tiếng toàn cầu.",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=1200&h=600&fit=crop",
-    badge: "⚡ Giao hàng siêu tốc",
-    title: "Đồ Uống",
-    accent: "Chính Hãng",
-    desc: "Cam kết sản phẩm chất lượng 100% từ các nhà sản xuất hàng đầu thế giới.",
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1543253687-c931c8e01820?w=1200&h=600&fit=crop",
-    badge: "🎉 Ưu đãi đặc biệt",
-    title: "Mua Sắm",
-    accent: "Thỏa Thích",
-    desc: "Tích điểm đổi quà, miễn phí vận chuyển cho đơn hàng trên 200K.",
-  },
-];
+import advertisementService from "../../services/advertisementService";
 
 export default function HeroBanner({ scrollTo }) {
+  const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
-  const [prev, setPrev] = useState(slides.length - 1);
+  const [prev, setPrev] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    advertisementService.getAll().then((data) => {
+      const mapped = data.map((item) => ({
+        id: item.id,
+        image: item.imageUrl,
+        badge: item.badgeText,
+        title: item.title,
+        accent: item.accent,
+        desc: item.description,
+        link: item.linkUrl,
+      }));
+      setSlides(mapped);
+      setLoading(false);
+    });
+  }, []);
 
   const goTo = useCallback((index) => {
     setPrev(current);
@@ -37,17 +29,22 @@ export default function HeroBanner({ scrollTo }) {
   }, [current]);
 
   const next = useCallback(() => {
+    if (slides.length === 0) return;
     goTo((current + 1) % slides.length);
-  }, [current, goTo]);
+  }, [current, goTo, slides.length]);
 
   const prevSlide = useCallback(() => {
+    if (slides.length === 0) return;
     goTo((current - 1 + slides.length) % slides.length);
-  }, [current, goTo]);
+  }, [current, goTo, slides.length]);
 
   useEffect(() => {
+    if (slides.length === 0) return;
     const timer = setInterval(next, 4000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [next, slides.length]);
+
+  if (loading || slides.length === 0) return null;
 
   return (
     <section id="home" className="hero hero-carousel">
@@ -61,11 +58,14 @@ export default function HeroBanner({ scrollTo }) {
       <div className="hero-overlay" />
 
       <div className="overlay">
-        <div className="badge-hero">{slides[current].badge}</div>
+        {slides[current].badge && (
+          <div className="badge-hero">{slides[current].badge}</div>
+        )}
         <h1>
-          {slides[current].title} <span>{slides[current].accent}</span>
+          {slides[current].title}{" "}
+          {slides[current].accent && <span>{slides[current].accent}</span>}
         </h1>
-        <p>{slides[current].desc}</p>
+        {slides[current].desc && <p>{slides[current].desc}</p>}
         <div className="hero-btns">
           <button className="btn-primary-hero" onClick={() => scrollTo("products")}>Mua Ngay</button>
           <button className="btn-secondary-hero">Khám Phá</button>
