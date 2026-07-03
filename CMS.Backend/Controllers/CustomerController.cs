@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CMS.Data.Entities;
-
-using Microsoft.AspNetCore.Mvc;
 using CMS.Data;
-using CMS.Data.Entities;
 using System.Linq;
 
 namespace CMS.Backend.Controllers

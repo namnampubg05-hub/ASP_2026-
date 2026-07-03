@@ -16,12 +16,27 @@ namespace CMS.Backend.Controllers
         }
 
         // ===================== INDEX =====================
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int pageSize = 10)
         {
-            var data = _context.Products
+            var query = _context.Products
                 .Include(p => p.CategoryProduct)
-                .OrderByDescending(p => p.Id)
+                .OrderByDescending(p => p.Id);
+
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+
+            var data = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
 
             return View(data);
         }

@@ -1,12 +1,10 @@
 ﻿using CMS.Data;
-using CMS.Data.Entities; // Phải có dòng này để dùng lớp User
-using CMS.Data.Entities; // Thay thế bằng namespace thực tế chứa thực thể User của bạn
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
+using CMS.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization; // Cần thêm namespace này
+using Microsoft.AspNetCore.Authorization;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 
 namespace CMS.Backend.Controllers
@@ -42,6 +40,9 @@ namespace CMS.Backend.Controllers
                 return View(model);
             }
 
+            // Mã hóa mật khẩu trước khi lưu
+            model.PasswordHash = BCryptNet.HashPassword(model.PasswordHash);
+
             // Lưu User mới vào Database
             _context.Users.Add(model);
             _context.SaveChanges();
@@ -70,10 +71,10 @@ namespace CMS.Backend.Controllers
 
             if (existingUser == null) return NotFound();
 
-            // 2. Xử lý mật khẩu: Nếu nhập mới thì lấy cái mới, nếu trống thì lấy cái cũ
+            // 2. Xử lý mật khẩu: Nếu nhập mới thì mã hóa, nếu trống thì lấy cái cũ
             if (!string.IsNullOrEmpty(NewPassword))
             {
-                model.PasswordHash = NewPassword; // Sau này sẽ mã hóa tại đây
+                model.PasswordHash = BCryptNet.HashPassword(NewPassword);
             }
             else
             {

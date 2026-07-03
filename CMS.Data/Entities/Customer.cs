@@ -23,7 +23,11 @@ namespace CMS.Data.Entities
         public string? Address { get; set; }
 
         [Required]
-        public string Password { get; set; } // Lưu mật khẩu thô theo yêu cầu tối giản
+        public string Password { get; set; } // Lưu mật khẩu đã mã hóa BCrypt
+
+        public string? ResetToken { get; set; }
+
+        public DateTime? ResetTokenExpiry { get; set; }
 
         public virtual ICollection<Order>? Orders { get; set; }
     }

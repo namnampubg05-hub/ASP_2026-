@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
+using CMS.Backend.Services;
 
 namespace CMS.Backend.Controllers
 {
@@ -27,18 +28,24 @@ namespace CMS.Backend.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // =========================
         // 1. CREATE ORDER
         // =========================
         [HttpPost]
-        public IActionResult CreateOrder([FromBody] CreateOrderRequest request)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
+            var customer = _context.Customers.Find(request.CustomerId);
+            if (customer == null)
+                return BadRequest("Khách hàng không tồn tại");
+
             using var tx = _context.Database.BeginTransaction();
 
             try
@@ -92,6 +99,8 @@ namespace CMS.Backend.Controllers
                 _context.SaveChanges();
                 tx.Commit();
 
+                _ = SendOrderConfirmationEmail(customer.Email, order);
+
                 return Ok(new
                 {
                     message = "Đặt hàng thành công",
@@ -104,9 +113,40 @@ namespace CMS.Backend.Controllers
                 throw;
             }
         }
-        // =========================
-        // 2. LỊCH SỬ ĐƠN HÀNG
-        // =========================
+
+        private async Task SendOrderConfirmationEmail(string customerEmail, Order order)
+        {
+            try
+            {
+                var items = order.OrderDetails?
+                    .Select(od => new EmailOrderItem
+                    {
+                        ProductName = od.Product?.Name ?? $"Sản phẩm #{od.ProductId}",
+                        Quantity = od.Quantity,
+                        UnitPrice = od.UnitPrice
+                    }).ToList() ?? new();
+
+                var emailOrder = new EmailOrder
+                {
+                    Id = order.Id,
+                    OrderDate = order.OrderDate,
+                    CustomerName = order.CustomerName,
+                    ShippingAddress = order.ShippingAddress,
+                    PaymentMethod = order.PaymentMethod,
+                    Items = items,
+                    Notes = order.Notes
+                };
+
+                await _emailService.SendOrderConfirmationAsync(customerEmail, emailOrder);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[Email] Lỗi gửi email xác nhận đơn #{order.Id}: {ex.Message}");
+            }
+        }
+
+
+
         [HttpGet("customer/{customerId}")]
         public IActionResult GetByCustomer(int customerId)
         {

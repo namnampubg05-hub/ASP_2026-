@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace CMS.Backend.Controllers
 {
@@ -75,14 +76,32 @@ namespace CMS.Backend.Controllers
             if (customer == null)
                 return NotFound(new { message = "Không tìm thấy khách hàng" });
 
-            if (customer.Password != request.CurrentPassword)
+            if (!VerifyPassword(request.CurrentPassword, customer.Password, p => customer.Password = p))
                 return BadRequest(new { message = "Mật khẩu hiện tại không đúng" });
 
-            customer.Password = request.NewPassword;
+            customer.Password = BCryptNet.HashPassword(request.NewPassword);
 
             _context.SaveChanges();
 
             return Ok(new { message = "Đổi mật khẩu thành công" });
+        }
+
+        private bool VerifyPassword(string input, string? stored, Action<string>? onMigrate = null)
+        {
+            if (string.IsNullOrEmpty(stored))
+                return false;
+
+            if (stored.StartsWith("$2"))
+                return BCryptNet.Verify(input, stored);
+
+            if (stored == input)
+            {
+                onMigrate?.Invoke(BCryptNet.HashPassword(input));
+                _context.SaveChanges();
+                return true;
+            }
+
+            return false;
         }
     }
 

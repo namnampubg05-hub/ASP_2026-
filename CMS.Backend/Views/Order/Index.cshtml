@@ -24,8 +24,20 @@
 
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-uppercase" style="letter-spacing: 0.5px;">Quản lý Đơn hàng</h2>
+        <h2 class="fw-bold text-uppercase" style="letter-spacing: 0.5px;">
+            Quản lý Đơn hàng
+            <span class="fs-6 fw-normal text-muted ms-2">(@Model.Count() đơn)</span>
+        </h2>
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
 
     @if (!Model.Any())
     {
@@ -44,14 +56,14 @@
                                 <th>Ngày đặt</th>
                                 <th>Trạng thái</th>
                                 <th class="text-end pe-3">Tổng tiền</th>
-                                <th class="text-center">Thao tác</th>
+                                <th class="text-center" style="min-width: 260px;">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var order in Model)
                             {
                                 var total = order.OrderDetails?.Sum(od => od.Quantity * od.UnitPrice) ?? 0;
-                                <tr>
+                                <tr class="@(order.Status == 0 ? "table-warning" : "")">
                                     <td class="ps-3 fw-semibold">#@order.Id</td>
                                     <td>@order.Customer?.FullName</td>
                                     <td class="text-muted">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
@@ -60,6 +72,19 @@
                                     </td>
                                     <td class="text-end pe-3 fw-bold text-danger">@total.ToString("#,##0") đ</td>
                                     <td class="text-center">
+                                        @if (order.Status == 0)
+                                        {
+                                            <form asp-action="Approve" asp-route-id="@order.Id" method="post" style="display:inline" onsubmit="return confirm('Duyệt đơn hàng #@order.Id?')">
+                                                <button type="submit" class="btn btn-success btn-sm fw-semibold me-1">
+                                                    <i class="bi bi-check-lg"></i> Duyệt
+                                                </button>
+                                            </form>
+                                            <form asp-action="Reject" asp-route-id="@order.Id" method="post" style="display:inline" onsubmit="return confirm('Từ chối đơn hàng #@order.Id?')">
+                                                <button type="submit" class="btn btn-danger btn-sm fw-semibold me-1">
+                                                    <i class="bi bi-x-lg"></i> Từ chối
+                                                </button>
+                                            </form>
+                                        }
                                         <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-info btn-sm fw-semibold me-1">
                                             <i class="bi bi-eye"></i> Chi tiết
                                         </a>
@@ -74,5 +99,46 @@
                 </div>
             </div>
         </div>
+
+        <nav class="mt-4 d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                Trang @ViewBag.CurrentPage / @ViewBag.TotalPages
+                (tổng số @ViewBag.TotalItems đơn)
+            </div>
+            <ul class="pagination pagination-sm mb-0">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="1">&laquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)">&lsaquo;</a>
+                    </li>
+                }
+
+                @{
+                    int startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                    int endPage = Math.Min(ViewBag.TotalPages, startPage + 4);
+                    if (endPage - startPage < 4) startPage = Math.Max(1, endPage - 4);
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">&rsaquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@ViewBag.TotalPages">&raquo;</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     }
 </div>

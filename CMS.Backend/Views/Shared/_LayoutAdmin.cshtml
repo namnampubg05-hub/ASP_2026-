@@ -75,8 +75,15 @@
                     <a asp-controller="Customer" asp-action="Index">
                         <i class="bi bi-people"></i> Khách hàng
                     </a>
+                    @{
+                        var pendingCount = Context.RequestServices.GetService<CMS.Data.ApplicationDbContext>()?.Orders.Count(o => o.Status == 0) ?? 0;
+                    }
                     <a asp-controller="Order" asp-action="Index">
-                        <i class="bi bi-grid"></i> Đơn hàng
+                        <i class="bi bi-truck"></i> Đơn hàng
+                        @if (pendingCount > 0)
+                        {
+                            <span class="badge bg-danger float-end mt-1">@pendingCount</span>
+                        }
                     </a>
                     <a asp-controller="Advertisement" asp-action="Index">
                         <i class="bi bi-megaphone"></i> Quảng cáo
